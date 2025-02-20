@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evenza - Modern Event Management Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .event-card:hover .event-overlay {
+            opacity: 1;
+        }
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(360deg);}
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <h1 class="text-2xl font-bold text-indigo-600">Evenza</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="flex items-center space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Discover</a>
+                        <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Host</a>
+                        <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Community</a>
+                        <button onclick="toggleTheme()" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md">
+                            <i class="bi bi-moon-stars"></i>
+                        </button>
+                        <button onclick="connectWallet()" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">
+                            Connect Wallet
+                        </button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-indigo-600">
+                        <i class="bi bi-list text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">Discover</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">Host</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">Community</a>
+                <button onclick="connectWallet()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">
+                    Connect Wallet
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="pt-20 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                <span class="block">Create Memorable</span>
+                <span class="block text-indigo-600">Events Together</span>
+            </h1>
+            <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                Host virtual, hybrid, or in-person events. Engage your community with modern tools and seamless experiences.
+            </p>
+            <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+                <div class="rounded-md shadow">
+                    <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
+                        Create Event
+                    </a>
+                </div>
+                <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+                    <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                        Browse Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Events -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <h2 class="text-2xl font-bold mb-6">Featured Events</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="eventGrid">
+            <!-- Events will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Create New Event</h3>
+                    <button onclick="toggleCreateEventModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <form id="createEventForm" onsubmit="handleCreateEvent(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Event Title</label>
+                            <input type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Date & Time</label>
+                            <input type="datetime-local" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Ticket Price (ETH)</label>
+                            <input type="number" step="0.001" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Create Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample events data
+        const events = [
+            {
+                id: 1,
+                title: "Web3 Developer Summit",
+                date: "2024-02-15",
+                time: "09:00 AM",
+                description: "Join leading developers to explore the future of Web3",
+                price: "0.1 ETH",
+                image: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 2,
+                title: "NFT Art Exhibition",
+                date: "2024-02-20",
+                time: "02:00 PM",
+                description: "Discover amazing digital art and meet creators",
+                price: "0.05 ETH",
+                image: "https://images.unsplash.com/photo-1569437061241-a848be43cc82?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                id: 3,
+                title: "DeFi Workshop",
+                date: "2024-02-25",
+                time: "10:00 AM",
+                description: "Learn about decentralized finance protocols",
+                price: "0.15 ETH",
+                image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            }
+        ];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEvents();
+        });
+
+        // Render events
+        function renderEvents() {
+            const eventGrid = document.getElementById('eventGrid');
+            eventGrid.innerHTML = events.map(event => `
+                <div class="event-card relative rounded-lg overflow-hidden shadow-md bg-white">
+                    <img src="${event.image}" alt="${event.title}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">${event.title}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${event.date} at ${event.time}</p>
+                        <p class="text-gray-500 text-sm mb-4">${event.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-indigo-600 font-medium">${event.price}</span>
+                            <button onclick="registerForEvent(${event.id})" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700">
+                                Register
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Toggle create event modal
+        function toggleCreateEventModal() {
+            const modal = document.getElementById('createEventModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Connect wallet
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    alert('Wallet connected successfully!');
+                } catch (error) {
+                    alert('Failed to connect wallet: ' + error.message);
+                }
+            } else {
+                alert('Please install MetaMask to use this feature!');
+            }
+        }
+
+        // Register for event
+        async function registerForEvent(eventId) {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const event = events.find(e => e.id === eventId);
+                    alert(`Processing registration for ${event.title}. Please confirm in MetaMask.`);
+                    // Add Web3 transaction logic here
+                } catch (error) {
+                    alert('Registration failed: ' + error.message);
+                }
+            } else {
+                alert('Please connect your wallet first!');
+            }
+        }
+
+        // Handle create event form submission
+        function handleCreateEvent(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            // Add form processing logic here
+            alert('Event created successfully!');
+            toggleCreateEventModal();
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            // Add more dark mode styling logic here
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
